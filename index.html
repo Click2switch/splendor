@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>璀璨宝石 · 宝可梦 · 联机版</title>
+<meta name="description" content="璀璨宝石宝可梦版多人联机桌游，2-4 人实时对战，浏览器直接开玩。">
+<link rel="icon" type="image/png" sizes="128x128" href="assets/balls/red.png">
+<link rel="apple-touch-icon" href="assets/icon-192.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#172233">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="stylesheet" href="styles.css?v=12">
+</head>
+<body>
+
+<div id="net-pill" class="net-pill hidden"></div>
+<div id="toast" class="toast hidden"></div>
+
+<!-- ------------------------------ 大厅 ------------------------------ -->
+<section id="screen-lobby" class="screen lobby">
+  <div class="lobby-panel">
+    <div class="brand">
+      <div class="brand-balls"><i></i><i></i><i></i></div>
+      <h1>璀璨宝石<span>宝可梦</span></h1>
+      <p class="brand-sub">2–4 人联机 · 可加人机陪练 · 收集精灵球，先到 18 分</p>
+    </div>
+
+    <div class="field">
+      <label for="in-name">训练家名字</label>
+      <input id="in-name" maxlength="12" placeholder="给自己起个名字" autocomplete="off">
+    </div>
+
+    <div class="field">
+      <label>选择训练家面板</label>
+      <div id="trainer-pick" class="trainer-pick"></div>
+    </div>
+
+    <div class="lobby-actions">
+      <button id="btn-create" class="btn primary">创建房间</button>
+      <div class="join-line">
+        <input id="in-code" maxlength="5" placeholder="房间码" autocomplete="off">
+        <button id="btn-join" class="btn">加入房间</button>
+      </div>
+    </div>
+    <p id="lobby-hint" class="lobby-hint"></p>
+  </div>
+  <footer class="lobby-foot">
+    按《璀璨宝石：宝可梦》官方规则实现 · 90 张卡 / 40 枚精灵球
+    <button id="btn-install" class="btn ghost tiny hidden" title="装成独立窗口，不受浏览器标签页影响">装到桌面</button>
+  </footer>
+</section>
+
+<!-- ------------------------------ 等待区 ------------------------------ -->
+<section id="screen-wait" class="screen wait hidden">
+  <div class="wait-panel">
+    <h2>房间 <span id="wait-code" class="code">·····</span></h2>
+    <p class="wait-sub">把邀请链接发给朋友，打开就能直接加入</p>
+    <p id="wait-link" class="wait-link hidden"></p>
+    <div id="wait-players" class="wait-players"></div>
+    <div id="wait-botbar" class="wait-botbar hidden">
+      <button id="btn-bots" class="btn tiny">＋ 添加人机玩家</button>
+    </div>
+    <div class="wait-actions">
+      <button id="btn-invite" class="btn">复制邀请链接</button>
+      <button id="btn-members" class="btn hidden">成员</button>
+      <button id="btn-rules" class="btn hidden">规则设置</button>
+      <button id="btn-start" class="btn primary">开始游戏</button>
+    </div>
+    <p id="wait-rules" class="wait-rules"></p>
+    <p id="wait-hint" class="lobby-hint"></p>
+    <button id="btn-leave-wait" class="btn ghost">离开房间</button>
+  </div>
+</section>
+
+<!-- ------------------------------ 对局 ------------------------------ -->
+<section id="screen-game" class="screen game hidden">
+  <header class="topbar">
+    <div class="tb-left">
+      <span class="tb-room">房间 <b id="tb-code">·····</b></span>
+      <span class="tb-meta">第 <b id="tb-round">1</b> 轮</span>
+      <span class="tb-meta">目标 <b id="tb-target">18</b> 分</span>
+    </div>
+    <div class="tb-center" id="tb-turn"></div>
+    <div class="tb-right">
+      <button id="btn-members2" class="icon-btn hidden">成员</button>
+      <button id="btn-invite2" class="icon-btn">邀请</button>
+      <button id="btn-restart" class="icon-btn hidden">重开</button>
+      <button id="btn-exit" class="icon-btn">退出</button>
+    </div>
+  </header>
+
+  <main class="board" id="board">
+    <!-- 四方座位：自己在下方，其余按顺时针排到右、上、左 -->
+    <div class="seat seat-north" id="seat-north"></div>
+    <div class="seat seat-west" id="seat-west"></div>
+
+    <section class="table" id="table">
+      <aside class="rail rail-special">
+        <div id="special" class="special"></div>
+      </aside>
+
+      <section class="market" id="market"></section>
+
+      <aside class="rail rail-side">
+        <div id="bank" class="bank"></div>
+        <div class="rail-head rail-head-log">对局记录</div>
+        <div id="log" class="log"></div>
+      </aside>
+    </section>
+
+    <div class="seat seat-east" id="seat-east"></div>
+    <div class="seat seat-south" id="seat-south"></div>
+  </main>
+
+  <div id="tray" class="tray hidden"></div>
+  <!-- 强制步骤的弹层被关掉后，这里留一个「回去继续」的入口 -->
+  <div id="pending" class="pending hidden"></div>
+</section>
+
+<!-- 弹层挂到 body 层：等待室和大厅里也要能弹（成员面板就在等待室用） -->
+<div id="modal" class="modal hidden"></div>
+
+<!-- 可选：把静态资源和图片搬到别处时，这份文件写上对局服务地址 -->
+<script src="runtime-config.js?v=12"></script>
+<script type="module" src="app.js?v=12"></script>
+</body>
+</html>
